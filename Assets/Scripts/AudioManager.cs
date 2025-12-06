@@ -18,7 +18,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip cardFlip;
     public AudioClip puzzleSnap;
     public AudioClip winFanfare;
-    public AudioClip starCollect;
+    //public AudioClip starCollect;
 
     void Awake()
     {
@@ -102,10 +102,10 @@ public class AudioManager : MonoBehaviour
         PlaySFX(winFanfare);
     }
 
-    public void PlayStarCollect()
-    {
-        PlaySFX(starCollect);
-    }
+    //public void PlayStarCollect()
+    //{
+    //    PlaySFX(starCollect);
+    //}
 
     public void ToggleMusic()
     {

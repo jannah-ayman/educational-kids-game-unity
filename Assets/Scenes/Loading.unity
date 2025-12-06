@@ -460,14 +460,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   musicSource: {fileID: 829706925}
   sfxSource: {fileID: 829706924}
-  backgroundMusic: {fileID: 0}
-  buttonClick: {fileID: 0}
-  correctSound: {fileID: 0}
-  wrongSound: {fileID: 0}
-  cardFlip: {fileID: 0}
-  puzzleSnap: {fileID: 0}
-  winFanfare: {fileID: 0}
-  starCollect: {fileID: 0}
+  backgroundMusic: {fileID: 8300000, guid: 78e6d47196645c447aaadad9d4d5050b, type: 3}
+  buttonClick: {fileID: 8300000, guid: 0bc6ed736c5597e4a9b4ec37bea2de01, type: 3}
+  correctSound: {fileID: 8300000, guid: 135a643d2b7f52d409e3bfe4caecd8a8, type: 3}
+  wrongSound: {fileID: 8300000, guid: f1c34d26e8e40e948842465d1f9b0d41, type: 3}
+  cardFlip: {fileID: 8300000, guid: 584c9c3c9924f82408c499d8063063df, type: 3}
+  puzzleSnap: {fileID: 8300000, guid: a4f831798bb109c4a86ad466e2ea4f25, type: 3}
+  winFanfare: {fileID: 8300000, guid: 5d50599ac74aa984cb83924b71ae6127, type: 3}
 --- !u!1 &885020167
 GameObject:
   m_ObjectHideFlags: 0
