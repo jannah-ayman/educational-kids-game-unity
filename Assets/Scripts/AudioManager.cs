@@ -36,17 +36,32 @@ public class AudioManager : MonoBehaviour
 
     void Start()
     {
-        // Load settings
+        // Load settings FIRST
         bool musicEnabled = PlayerPrefs.GetInt("MusicEnabled", 1) == 1;
         bool sfxEnabled = PlayerPrefs.GetInt("SFXEnabled", 1) == 1;
 
-        musicSource.mute = !musicEnabled;
-        sfxSource.mute = !sfxEnabled;
+        // Load volume (NEW - add this)
+        float musicVolume = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        float sfxVolume = PlayerPrefs.GetFloat("SFXVolume", 1f);
+        bool musicMuted = PlayerPrefs.GetInt("MusicMuted", 0) == 1;
+        bool sfxMuted = PlayerPrefs.GetInt("SFXMuted", 0) == 1;
 
-        // Play background music if available
-        if (backgroundMusic != null)
+        // Apply volumes
+        musicSource.volume = musicMuted ? 0 : musicVolume;
+        sfxSource.volume = sfxMuted ? 0 : sfxVolume;
+
+        musicSource.mute = musicMuted;
+        sfxSource.mute = sfxMuted;
+
+        // FORCE play music
+        if (backgroundMusic != null && !musicMuted)
         {
             PlayMusic();
+            Debug.Log("Music started! Volume: " + musicSource.volume);
+        }
+        else
+        {
+            Debug.LogWarning("Music NOT playing. Muted: " + musicMuted + ", Clip exists: " + (backgroundMusic != null));
         }
     }
 

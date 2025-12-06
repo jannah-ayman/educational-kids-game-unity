@@ -3,152 +3,367 @@ using UnityEngine.UI;
 
 public class SettingsManager : MonoBehaviour
 {
-    [Header("UI References")]
-    public Toggle musicToggle;
-    public Toggle sfxToggle;
+    [Header("Music Controls")]
+    public Slider musicSlider;
+    public Button musicMuteButton;
+    public Image musicMuteIcon;
+    public Sprite musicUnmutedSprite;
+    public Sprite musicMutedSprite;
+
+    [Header("SFX Controls")]
+    public Slider sfxSlider;
+    public Button sfxMuteButton;
+    public Image sfxMuteIcon;
+    public Sprite sfxUnmutedSprite;
+    public Sprite sfxMutedSprite;
+
+    [Header("Other UI")]
     public Button resetButton;
     public Button backButton;
-
-    [Header("Confirm Popup")]
     public GameObject confirmPopup;
     public Button yesButton;
     public Button noButton;
 
+    // Remember volume before mute
+    private float musicVolumeBeforeMute = 1f;
+    private float sfxVolumeBeforeMute = 1f;
+
+    // Track mute state
+    private bool musicIsMuted = false;
+    private bool sfxIsMuted = false;
+
     void Start()
     {
-        // Hide popup initially
+        // Hide popup
         confirmPopup.SetActive(false);
 
         // Load saved settings
         LoadSettings();
 
-        // Add listeners
-        musicToggle.onValueChanged.AddListener(OnMusicToggled);
-        sfxToggle.onValueChanged.AddListener(OnSFXToggled);
+        // Add slider listeners (fires when value changes)
+        musicSlider.onValueChanged.AddListener(OnMusicSliderChanged);
+        sfxSlider.onValueChanged.AddListener(OnSFXSliderChanged);
+
+        // Add mute button listeners
+        musicMuteButton.onClick.AddListener(OnMusicMuteClicked);
+        sfxMuteButton.onClick.AddListener(OnSFXMuteClicked);
+
+        // Other buttons
         resetButton.onClick.AddListener(OnResetClicked);
         backButton.onClick.AddListener(OnBackClicked);
-
-        // Popup buttons
         yesButton.onClick.AddListener(OnResetConfirmed);
         noButton.onClick.AddListener(OnResetCancelled);
+
+        // Update mute button visuals
+        UpdateMusicMuteButton();
+        UpdateSFXMuteButton();
     }
 
     void LoadSettings()
     {
-        // Load from PlayerPrefs (temporary until Firebase)
-        bool musicOn = PlayerPrefs.GetInt("MusicEnabled", 1) == 1;
-        bool sfxOn = PlayerPrefs.GetInt("SFXEnabled", 1) == 1;
+        // Load saved volumes (default: 1.0 = 100%)
+        float savedMusicVolume = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        float savedSFXVolume = PlayerPrefs.GetFloat("SFXVolume", 1f);
+        bool savedMusicMuted = PlayerPrefs.GetInt("MusicMuted", 0) == 1;
+        bool savedSFXMuted = PlayerPrefs.GetInt("SFXMuted", 0) == 1;
 
-        musicToggle.isOn = musicOn;
-        sfxToggle.isOn = sfxOn;
+        // Set sliders
+        musicSlider.value = savedMusicVolume;
+        sfxSlider.value = savedSFXVolume;
+
+        // Set mute states
+        musicIsMuted = savedMusicMuted;
+        sfxIsMuted = savedSFXMuted;
+
+        // Remember volumes before mute
+        musicVolumeBeforeMute = savedMusicVolume > 0 ? savedMusicVolume : 1f;
+        sfxVolumeBeforeMute = savedSFXVolume > 0 ? savedSFXVolume : 1f;
 
         // Apply to AudioManager
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.musicSource.mute = !musicOn;
-            AudioManager.Instance.sfxSource.mute = !sfxOn;
-        }
+        ApplyMusicSettings();
+        ApplySFXSettings();
     }
 
-    void OnMusicToggled(bool isOn)
-    {
-        Debug.Log("Music toggled: " + isOn);
+    // ==================== MUSIC CONTROLS ====================
 
-        // Save preference
-        PlayerPrefs.SetInt("MusicEnabled", isOn ? 1 : 0);
+    void OnMusicSliderChanged(float value)
+    {
+        Debug.Log("Music volume: " + value);
+
+        // If slider reaches 0, auto-mute
+        if (value == 0)
+        {
+            musicIsMuted = true;
+        }
+        else
+        {
+            // If was muted and slider moved, unmute
+            if (musicIsMuted)
+            {
+                musicIsMuted = false;
+            }
+
+            // Remember this volume
+            musicVolumeBeforeMute = value;
+        }
+
+        // Save
+        PlayerPrefs.SetFloat("MusicVolume", value);
+        PlayerPrefs.SetInt("MusicMuted", musicIsMuted ? 1 : 0);
         PlayerPrefs.Save();
 
-        // Apply to AudioManager
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.musicSource.mute = !isOn;
+        // Apply
+        ApplyMusicSettings();
+        UpdateMusicMuteButton();
+    }
 
-            // Play test sound
-            if (isOn)
+    void OnMusicMuteClicked()
+    {
+        Debug.Log("Music mute button clicked");
+
+        // Toggle mute
+        musicIsMuted = !musicIsMuted;
+
+        if (musicIsMuted)
+        {
+            // Muting - remember current volume, set slider to 0
+            musicVolumeBeforeMute = musicSlider.value > 0 ? musicSlider.value : 1f;
+            musicSlider.value = 0;
+        }
+        else
+        {
+            // Unmuting - restore previous volume
+            musicSlider.value = musicVolumeBeforeMute;
+        }
+
+        // Save
+        PlayerPrefs.SetInt("MusicMuted", musicIsMuted ? 1 : 0);
+        PlayerPrefs.Save();
+
+        // Apply
+        ApplyMusicSettings();
+        UpdateMusicMuteButton();
+
+        // Play click sound
+        PlayClickSound();
+    }
+
+    void ApplyMusicSettings()
+    {
+        if (AudioManager.Instance == null) return;
+
+        if (musicIsMuted || musicSlider.value == 0)
+        {
+            // Muted
+            AudioManager.Instance.musicSource.volume = 0;
+            AudioManager.Instance.musicSource.mute = true;
+        }
+        else
+        {
+            // Set volume
+            AudioManager.Instance.musicSource.volume = musicSlider.value;
+            AudioManager.Instance.musicSource.mute = false;
+
+            // Start music if not playing
+            if (!AudioManager.Instance.musicSource.isPlaying && AudioManager.Instance.backgroundMusic != null)
             {
                 AudioManager.Instance.PlayMusic();
             }
         }
     }
 
-    void OnSFXToggled(bool isOn)
+    void UpdateMusicMuteButton()
     {
-        Debug.Log("SFX toggled: " + isOn);
+        if (musicMuteIcon == null) return;
 
-        // Save preference
-        PlayerPrefs.SetInt("SFXEnabled", isOn ? 1 : 0);
-        PlayerPrefs.Save();
-
-        // Apply to AudioManager
-        if (AudioManager.Instance != null)
+        // Change sprite based on mute state
+        if (musicIsMuted || musicSlider.value == 0)
         {
-            AudioManager.Instance.sfxSource.mute = !isOn;
-
-            // Play test sound if turning on
-            if (isOn && AudioManager.Instance.buttonClick != null)
-            {
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.buttonClick);
-            }
+            // Show muted icon
+            if (musicMutedSprite != null)
+                musicMuteIcon.sprite = musicMutedSprite;
+            else
+                musicMuteIcon.color = Color.red; // Fallback: red tint
+        }
+        else
+        {
+            // Show unmuted icon
+            if (musicUnmutedSprite != null)
+                musicMuteIcon.sprite = musicUnmutedSprite;
+            else
+                musicMuteIcon.color = Color.white; // Fallback: white
         }
     }
 
-    void OnResetClicked()
+    // ==================== SFX CONTROLS ====================
+
+    void OnSFXSliderChanged(float value)
     {
-        Debug.Log("Reset button clicked");
+        Debug.Log("SFX volume: " + value);
 
-        // Show confirmation popup
-        confirmPopup.SetActive(true);
+        // Same logic as music
+        if (value == 0)
+        {
+            sfxIsMuted = true;
+        }
+        else
+        {
+            if (sfxIsMuted)
+            {
+                sfxIsMuted = false;
+            }
+            sfxVolumeBeforeMute = value;
+        }
 
-        // Play sound
+        // Save
+        PlayerPrefs.SetFloat("SFXVolume", value);
+        PlayerPrefs.SetInt("SFXMuted", sfxIsMuted ? 1 : 0);
+        PlayerPrefs.Save();
+
+        // Apply
+        ApplySFXSettings();
+        UpdateSFXMuteButton();
+
+        // Play test sound when adjusting
+        if (!sfxIsMuted && value > 0)
+        {
+            PlayTestSound();
+        }
+    }
+
+    void OnSFXMuteClicked()
+    {
+        Debug.Log("SFX mute button clicked");
+
+        // Toggle mute
+        sfxIsMuted = !sfxIsMuted;
+
+        if (sfxIsMuted)
+        {
+            // Muting
+            sfxVolumeBeforeMute = sfxSlider.value > 0 ? sfxSlider.value : 1f;
+            sfxSlider.value = 0;
+        }
+        else
+        {
+            // Unmuting
+            sfxSlider.value = sfxVolumeBeforeMute;
+        }
+
+        // Save
+        PlayerPrefs.SetInt("SFXMuted", sfxIsMuted ? 1 : 0);
+        PlayerPrefs.Save();
+
+        // Apply
+        ApplySFXSettings();
+        UpdateSFXMuteButton();
+
+        // Play test sound if unmuting
+        if (!sfxIsMuted)
+        {
+            PlayTestSound();
+        }
+    }
+
+    void ApplySFXSettings()
+    {
+        if (AudioManager.Instance == null) return;
+
+        if (sfxIsMuted || sfxSlider.value == 0)
+        {
+            // Muted
+            AudioManager.Instance.sfxSource.volume = 0;
+            AudioManager.Instance.sfxSource.mute = true;
+        }
+        else
+        {
+            // Set volume
+            AudioManager.Instance.sfxSource.volume = sfxSlider.value;
+            AudioManager.Instance.sfxSource.mute = false;
+        }
+    }
+
+    void UpdateSFXMuteButton()
+    {
+        if (sfxMuteIcon == null) return;
+
+        if (sfxIsMuted || sfxSlider.value == 0)
+        {
+            // Show muted icon
+            if (sfxMutedSprite != null)
+                sfxMuteIcon.sprite = sfxMutedSprite;
+            else
+                sfxMuteIcon.color = Color.red;
+        }
+        else
+        {
+            // Show unmuted icon
+            if (sfxUnmutedSprite != null)
+                sfxMuteIcon.sprite = sfxUnmutedSprite;
+            else
+                sfxMuteIcon.color = Color.white;
+        }
+    }
+
+    // ==================== HELPER METHODS ====================
+
+    void PlayClickSound()
+    {
         if (AudioManager.Instance != null && AudioManager.Instance.buttonClick != null)
         {
             AudioManager.Instance.PlaySFX(AudioManager.Instance.buttonClick);
         }
+    }
+
+    void PlayTestSound()
+    {
+        // Play a test sound when adjusting SFX volume
+        if (AudioManager.Instance != null && AudioManager.Instance.buttonClick != null)
+        {
+            AudioManager.Instance.PlaySFX(AudioManager.Instance.buttonClick);
+        }
+    }
+
+    // ==================== OTHER BUTTONS ====================
+
+    void OnResetClicked()
+    {
+        confirmPopup.SetActive(true);
+        PlayClickSound();
     }
 
     void OnResetConfirmed()
     {
         Debug.Log("Reset confirmed!");
 
-        // TODO: Clear Firebase data when TA responds
-        // For now, clear PlayerPrefs
+        // Clear all data
         PlayerPrefs.DeleteAll();
         PlayerPrefs.Save();
 
-        // Restore default settings
-        PlayerPrefs.SetInt("MusicEnabled", 1);
-        PlayerPrefs.SetInt("SFXEnabled", 1);
-        PlayerPrefs.Save();
-
-        // Hide popup
         confirmPopup.SetActive(false);
 
-        // Show feedback (optional)
-        Debug.Log("Progress reset! Going back to login...");
-
-        // Go to login screen
+        // Go to login
         SceneLoader.Instance.LoadLogin();
     }
 
     void OnResetCancelled()
     {
-        Debug.Log("Reset cancelled");
-
-        // Hide popup
         confirmPopup.SetActive(false);
+        PlayClickSound();
     }
 
     void OnBackClicked()
     {
-        Debug.Log("Back to main menu");
+        Debug.Log("Back button clicked!");
 
-        // Play sound
-        if (AudioManager.Instance != null && AudioManager.Instance.buttonClick != null)
+        if (SceneLoader.Instance == null)
         {
-            AudioManager.Instance.PlaySFX(AudioManager.Instance.buttonClick);
+            Debug.LogError("SceneLoader.Instance is NULL!");
+            return;
         }
 
-        // Go back to main menu
+        Debug.Log("Loading MainMenu...");
+        PlayClickSound();
         SceneLoader.Instance.LoadMainMenu();
     }
 }
