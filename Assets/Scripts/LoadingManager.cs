@@ -33,7 +33,7 @@ public class LoadingManager : MonoBehaviour
     IEnumerator CheckLoginAndRedirect()
     {
         // Wait 2 seconds to show logo
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(4f);
 
         // TODO: Check Firebase login when TA responds
         // For now, always go to Login
