@@ -1,8 +1,16 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro; // Add this for TextMeshPro
 
 public class SettingsManager : MonoBehaviour
 {
+    public static SettingsManager Instance;
+
+    [Header("Popup")]
+    public GameObject settingsPopup;
+    public Button closeButtonTop;
+    public Button closeButtonBottom;
+
     [Header("Music Controls")]
     public Slider musicSlider;
     public Button musicMuteButton;
@@ -17,21 +25,29 @@ public class SettingsManager : MonoBehaviour
     public Sprite sfxUnmutedSprite;
     public Sprite sfxMutedSprite;
 
-    [Header("Other UI")]
-    public Button resetButton;
-    public Button backButton;
-    public GameObject confirmPopup;
-    public Button yesButton;
-    public Button noButton;
-
     private bool musicIsMuted = false;
     private bool sfxIsMuted = false;
     private float musicPreviousVolume = 1f;
     private float sfxPreviousVolume = 1f;
 
+    void Awake()
+    {
+        // Singleton pattern
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     void Start()
     {
-        confirmPopup.SetActive(false);
+        // Hide popup initially
+        settingsPopup.SetActive(false);
 
         // Load saved volumes
         if (AudioManager.Instance != null)
@@ -48,14 +64,39 @@ public class SettingsManager : MonoBehaviour
         sfxSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
         musicMuteButton.onClick.AddListener(ToggleMusicMute);
         sfxMuteButton.onClick.AddListener(ToggleSFXMute);
-        resetButton.onClick.AddListener(OnResetClicked);
-        backButton.onClick.AddListener(OnBackClicked);
-        yesButton.onClick.AddListener(OnResetConfirmed);
-        noButton.onClick.AddListener(OnResetCancelled);
+
+        closeButtonTop.onClick.AddListener(CloseSettings);           // ← Just closes
+        closeButtonBottom.onClick.AddListener(GoToCharacterSelection); // ← Goes to character selection
 
         // Update button visuals
         UpdateMusicMuteIcon();
         UpdateSFXMuteIcon();
+    }
+
+    // ==================== POPUP CONTROL ====================
+    public void OpenSettings()
+    {
+        settingsPopup.SetActive(true);
+        PlayClickSound();
+    }
+
+    public void CloseSettings()
+    {
+        // Top right X button - just closes popup
+        settingsPopup.SetActive(false);
+        PlayClickSound();
+    }
+
+    public void GoToCharacterSelection()
+    {
+        // Bottom button - goes to character selection
+        settingsPopup.SetActive(false);
+        PlayClickSound();
+
+        if (SceneLoader.Instance != null)
+        {
+            SceneLoader.Instance.LoadCharacterSelection();
+        }
     }
 
     // ==================== MUSIC ====================
@@ -67,7 +108,6 @@ public class SettingsManager : MonoBehaviour
         AudioManager.Instance.musicSource.volume = volume;
         PlayerPrefs.SetFloat("MusicVolume", volume);
 
-        // Auto update mute state
         if (volume == 0f)
         {
             musicIsMuted = true;
@@ -110,13 +150,13 @@ public class SettingsManager : MonoBehaviour
 
         if (musicIsMuted || musicSlider.value == 0f)
         {
-            musicMuteIcon.sprite = musicMutedSprite != null ? musicMutedSprite : musicMuteIcon.sprite;
-            if (musicMutedSprite == null) musicMuteIcon.color = Color.red;
+            musicMuteIcon.color = Color.red; // Temporary
+            // When sprites ready: musicMuteIcon.sprite = musicMutedSprite;
         }
         else
         {
-            musicMuteIcon.sprite = musicUnmutedSprite != null ? musicUnmutedSprite : musicMuteIcon.sprite;
-            if (musicUnmutedSprite == null) musicMuteIcon.color = Color.white;
+            musicMuteIcon.color = Color.white; // Temporary
+            // When sprites ready: musicMuteIcon.sprite = musicUnmutedSprite;
         }
     }
 
@@ -141,7 +181,6 @@ public class SettingsManager : MonoBehaviour
 
         UpdateSFXMuteIcon();
 
-        // Play test sound
         if (volume > 0)
             PlayClickSound();
     }
@@ -177,51 +216,19 @@ public class SettingsManager : MonoBehaviour
 
         if (sfxIsMuted || sfxSlider.value == 0f)
         {
-            sfxMuteIcon.sprite = sfxMutedSprite != null ? sfxMutedSprite : sfxMuteIcon.sprite;
-            if (sfxMutedSprite == null) sfxMuteIcon.color = Color.red;
+            sfxMuteIcon.color = Color.red;
         }
         else
         {
-            sfxMuteIcon.sprite = sfxUnmutedSprite != null ? sfxUnmutedSprite : sfxMuteIcon.sprite;
-            if (sfxUnmutedSprite == null) sfxMuteIcon.color = Color.white;
+            sfxMuteIcon.color = Color.white;
         }
     }
 
-    // ==================== OTHER ====================
+    // ==================== HELPER ====================
 
     void PlayClickSound()
     {
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayButtonClick();
-    }
-
-    void OnResetClicked()
-    {
-        confirmPopup.SetActive(true);
-        PlayClickSound();
-    }
-
-    void OnResetConfirmed()
-    {
-        PlayerPrefs.DeleteAll();
-        PlayerPrefs.Save();
-        confirmPopup.SetActive(false);
-
-        if (SceneLoader.Instance != null)
-            SceneLoader.Instance.LoadLogin();
-    }
-
-    void OnResetCancelled()
-    {
-        confirmPopup.SetActive(false);
-        PlayClickSound();
-    }
-
-    void OnBackClicked()
-    {
-        PlayClickSound();
-
-        if (SceneLoader.Instance != null)
-            SceneLoader.Instance.LoadMainMenu();
     }
 }
