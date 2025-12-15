@@ -115,19 +115,34 @@ public class StarPopupManager : MonoBehaviour
     }
 
     // ==================== PUBLIC METHODS ====================
+    public string GetTitleText(int starCount)
+    {
+        switch (starCount)
+        {
+            case 5:
+                return "Amazing!";
+            case 4:
+                return "Great Job!";
+            case 3:
+                return "Nice Work!";
+            case 2:
+                return "Keep Practicing!";
+            case 1:
+                return "Almost There!";
+            case 0:
+                return "Uh-Oh!";
+            default:
+                return "";
+        }
+    }
 
     public void ShowStars(int starCount, string message)
     {
-        // If popup is null, try finding it again
         if (popupPanel == null)
         {
-            Debug.Log("⚠️ StarPopup was null, searching again...");
             FindPopupInScene();
-
             if (popupPanel != null)
-            {
                 SetupPopup();
-            }
         }
 
         if (popupPanel == null)
@@ -136,23 +151,35 @@ public class StarPopupManager : MonoBehaviour
             return;
         }
 
-        // Rest of the method...
         starCount = Mathf.Clamp(starCount, 0, 5);
 
+        // ⭐ Set star images
         for (int i = 0; i < stars.Length; i++)
         {
             if (stars[i] != null)
                 stars[i].sprite = i < starCount ? starFull : starEmpty;
         }
 
+        // ⭐ SET TITLE TEXT HERE
+        if (winText != null)
+            winText.text = GetTitleText(starCount);
+
+        // Score / message text
         if (scoreText != null)
             scoreText.text = message;
 
         popupPanel.SetActive(true);
 
         if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayWinFanfare();
+        {
+            if (starCount <= 1)
+                AudioManager.Instance.PlayLoseSound();
+            else
+                AudioManager.Instance.PlayWinFanfare();
+        }
+
     }
+
 
     public void PlayAgain()
     {

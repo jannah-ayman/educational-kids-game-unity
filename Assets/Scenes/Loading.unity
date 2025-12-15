@@ -828,6 +828,7 @@ MonoBehaviour:
   cardFlip: {fileID: 8300000, guid: 584c9c3c9924f82408c499d8063063df, type: 3}
   puzzleSnap: {fileID: 8300000, guid: a4f831798bb109c4a86ad466e2ea4f25, type: 3}
   winFanfare: {fileID: 8300000, guid: 5d50599ac74aa984cb83924b71ae6127, type: 3}
+  loseSound: {fileID: 8300000, guid: 9ee658db4fc2a804aa40fe9731bd4aba, type: 3}
 --- !u!1 &976102428
 GameObject:
   m_ObjectHideFlags: 0

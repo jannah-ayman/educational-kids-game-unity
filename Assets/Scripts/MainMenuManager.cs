@@ -8,28 +8,50 @@ public class MainMenuManager : MonoBehaviour
     public Button memoryMatchButton;
     public Button puzzleGameButton;
     public Button mathGameButton;
+    public Button settingsButton;
+    public Button logoutButton;
     public Image characterAvatar;
 
     void Start()
     {
-        // Add button listeners
-        memoryMatchButton.onClick.AddListener(() => SceneLoader.Instance.LoadMemoryMatch());
-        puzzleGameButton.onClick.AddListener(() => SceneLoader.Instance.LoadPuzzleGame());
-        mathGameButton.onClick.AddListener(() => SceneLoader.Instance.LoadMathGame());
+        // Add button listeners with sound
+        memoryMatchButton.onClick.AddListener(() => {
+            PlayClick();
+            SceneLoader.Instance.LoadMemoryMatch();
+        });
+
+        puzzleGameButton.onClick.AddListener(() => {
+            PlayClick();
+            SceneLoader.Instance.LoadPuzzleGame();
+        });
+
+        mathGameButton.onClick.AddListener(() => {
+            PlayClick();
+            SceneLoader.Instance.LoadMathGame();
+        });
+
+        settingsButton.onClick.AddListener(OpenSettings);
+        logoutButton.onClick.AddListener(Logout);
 
         // TODO: Load character avatar from Firebase when character selection is done
-        // For now, leave it as placeholder
+    }
+
+    void PlayClick()
+    {
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayButtonClick();
     }
 
     void OpenSettings()
     {
-        AudioManager.Instance.PlayButtonClick();
-        SettingsManager.Instance.OpenSettings();
+        PlayClick();
+        if (SettingsManager.Instance != null)
+            SettingsManager.Instance.OpenSettings();
     }
 
     void Logout()
     {
-        AudioManager.Instance.PlayButtonClick();
+        PlayClick();
 
         if (FirebaseManager.Instance != null)
         {

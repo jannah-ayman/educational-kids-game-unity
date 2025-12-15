@@ -18,6 +18,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip cardFlip;
     public AudioClip puzzleSnap;
     public AudioClip winFanfare;
+    public AudioClip loseSound;
 
     void Awake()
     {
@@ -60,4 +61,6 @@ public class AudioManager : MonoBehaviour
     public void PlayCardFlip() => PlaySFX(cardFlip);
     public void PlayPuzzleSnap() => PlaySFX(puzzleSnap);
     public void PlayWinFanfare() => PlaySFX(winFanfare);
+    public void PlayLoseSound() => PlaySFX(loseSound);
+
 }
