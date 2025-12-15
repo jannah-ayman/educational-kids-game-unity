@@ -1,119 +1,128 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
 public class LoginManager : MonoBehaviour
 {
-    [Header("UI References")]
     public TMP_InputField emailInput;
     public TMP_InputField passwordInput;
     public TMP_Text errorText;
     public Button loginButton;
     public Button registerButton;
 
+    bool isProcessing = false;
+
     void Start()
     {
-        // Hide error on start
         errorText.text = "";
 
-        // Add button listeners
         loginButton.onClick.AddListener(OnLoginClicked);
         registerButton.onClick.AddListener(OnRegisterClicked);
 
-        // Play click sound on buttons
-        AddClickSound(loginButton);
-        AddClickSound(registerButton);
+        SetButtons(false);
+        errorText.text = "Connecting...";
+
+        if (FirebaseManager.Instance.isFirebaseReady)
+        {
+            OnFirebaseReady();
+        }
+        else
+        {
+            FirebaseManager.Instance.OnFirebaseInitialized += OnFirebaseReady;
+        }
+    }
+
+    void OnDestroy()
+    {
+        if (FirebaseManager.Instance != null)
+            FirebaseManager.Instance.OnFirebaseInitialized -= OnFirebaseReady;
+    }
+
+    void OnFirebaseReady()
+    {
+        errorText.text = "";
+        SetButtons(true);
     }
 
     public void OnLoginClicked()
     {
+        if (isProcessing) return;
+
         string email = emailInput.text.Trim();
         string password = passwordInput.text;
 
-        // Validate input
-        if (!ValidateInput(email, password))
-            return;
+        if (!Validate(email, password)) return;
 
-        Debug.Log("Login clicked: " + email);
+        isProcessing = true;
+        SetButtons(false);
+        errorText.text = "Logging in...";
 
-        // TEMPORARY
-        TempLogin();
+        FirebaseManager.Instance.LoginUser(email, password, OnAuthResult);
     }
 
     public void OnRegisterClicked()
     {
+        if (isProcessing) return;
+
         string email = emailInput.text.Trim();
         string password = passwordInput.text;
 
-        // Validate input
-        if (!ValidateInput(email, password))
-            return;
+        if (!Validate(email, password)) return;
 
-        Debug.Log("Register clicked: " + email);
+        isProcessing = true;
+        SetButtons(false);
+        errorText.text = "Creating account...";
 
-        // TEMPORARY
-        TempRegister();
+        FirebaseManager.Instance.RegisterUser(email, password, OnAuthResult);
     }
 
-    bool ValidateInput(string email, string password)
+    void OnAuthResult(bool success, string message)
     {
-        if (string.IsNullOrEmpty(email))
+        isProcessing = false;
+
+        if (success)
         {
-            ShowError("Oops! Please enter your email!");
+            errorText.text = "";
+            SceneLoader.Instance.LoadCharacterSelection();
+        }
+        else
+        {
+            if (message.Contains("exist"))
+                errorText.text = "User does not exist. Please register first.";
+            else
+                errorText.text = message;
+
+            SetButtons(true);
+        }
+
+    }
+
+    bool Validate(string email, string password)
+    {
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+        {
+            errorText.text = "Fill all fields!";
             return false;
         }
 
-        if (string.IsNullOrEmpty(password))
+        if (!email.Contains("@"))
         {
-            ShowError("Oops! Please enter a password!");
-            return false;
-        }
-
-        if (!email.Contains("@") || !email.Contains("."))
-        {
-            ShowError("That doesn't look like an email!");
+            errorText.text = "Invalid email!";
             return false;
         }
 
         if (password.Length < 6)
         {
-            ShowError("Password must be at least 6 characters!");
+            errorText.text = "Password too short!";
             return false;
         }
 
         return true;
     }
 
-    void ShowError(string message)
+    void SetButtons(bool value)
     {
-        errorText.text = message;
-
-        if (AudioManager.Instance != null)
-        {
-            // AudioManager.Instance.PlaySFX("wrong");
-        }
-    }
-
-    void TempLogin()
-    {
-        ShowError("");
-        SceneLoader.Instance.LoadCharacterSelection();
-    }
-
-    void TempRegister()
-    {
-        ShowError("");
-        SceneLoader.Instance.LoadCharacterSelection();
-    }
-
-    void AddClickSound(Button button)
-    {
-        button.onClick.AddListener(() =>
-        {
-            if (AudioManager.Instance != null)
-            {
-                // AudioManager.Instance.PlaySFX("click");
-            }
-        });
+        loginButton.interactable = value;
+        registerButton.interactable = value;
     }
 }
