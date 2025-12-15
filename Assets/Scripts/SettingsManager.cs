@@ -1,27 +1,26 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // Add this for TextMeshPro
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class SettingsManager : MonoBehaviour
 {
     public static SettingsManager Instance;
 
-    [Header("Popup")]
-    public GameObject settingsPopup;
-    public Button closeButtonTop;
-    public Button closeButtonBottom;
+    [Header("References (Auto-Found)")]
+    private GameObject settingsPopup;
+    private Slider musicSlider;
+    private Slider sfxSlider;
+    private Button musicMuteButton;
+    private Button sfxMuteButton;
+    private Image musicMuteIcon;
+    private Image sfxMuteIcon;
+    private Button closeButtonTop;
+    private Button closeButtonBottom;
 
-    [Header("Music Controls")]
-    public Slider musicSlider;
-    public Button musicMuteButton;
-    public Image musicMuteIcon;
+    [Header("Sprites (Assign in Inspector)")]
     public Sprite musicUnmutedSprite;
     public Sprite musicMutedSprite;
-
-    [Header("SFX Controls")]
-    public Slider sfxSlider;
-    public Button sfxMuteButton;
-    public Image sfxMuteIcon;
     public Sprite sfxUnmutedSprite;
     public Sprite sfxMutedSprite;
 
@@ -32,7 +31,6 @@ public class SettingsManager : MonoBehaviour
 
     void Awake()
     {
-        // Singleton pattern
         if (Instance == null)
         {
             Instance = this;
@@ -46,10 +44,93 @@ public class SettingsManager : MonoBehaviour
 
     void Start()
     {
-        // Hide popup initially
+        // Find popup in current scene
+        FindPopupInScene();
+
+        if (settingsPopup != null)
+        {
+            SetupPopup();
+        }
+    }
+
+    //void OnLevelWasLoaded(int level)
+    //{
+    //    // Called when scene changes - find popup again
+    //    FindPopupInScene();
+
+    //    if (settingsPopup != null)
+    //    {
+    //        SetupPopup();
+    //    }
+    //}
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        FindPopupInScene();
+
+        if (settingsPopup != null)
+        {
+            SetupPopup();
+        }
+    }
+
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void FindPopupInScene()
+    {
+        // Find the popup by name in any Canvas
+        Canvas[] canvases = FindObjectsOfType<Canvas>();
+
+        foreach (Canvas canvas in canvases)
+        {
+            Transform popup = canvas.transform.Find("SettingsPopUp");
+            if (popup != null)
+            {
+                settingsPopup = popup.gameObject;
+                Debug.Log("✅ Found SettingsPopup in scene!");
+
+                // Find all child elements
+                musicSlider = popup.Find("MusicSlider")?.GetComponent<Slider>();
+                sfxSlider = popup.Find("SFXSlider")?.GetComponent<Slider>();
+                musicMuteButton = popup.Find("MusicMuteButton")?.GetComponent<Button>();
+                sfxMuteButton = popup.Find("SFXMuteButton")?.GetComponent<Button>();
+                closeButtonTop = popup.Find("CloseButton")?.GetComponent<Button>();
+                closeButtonBottom = popup.Find("CharacterButton")?.GetComponent<Button>();
+
+                // Find icons (Image components inside buttons)
+                if (musicMuteButton != null)
+                    musicMuteIcon = musicMuteButton.transform.GetChild(0)?.GetComponent<Image>();
+                if (sfxMuteButton != null)
+                    sfxMuteIcon = sfxMuteButton.transform.GetChild(0)?.GetComponent<Image>();
+
+                return;
+            }
+        }
+
+        Debug.LogWarning("⚠️ SettingsPopup not found in scene! Add SettingsPopup prefab to Canvas.");
+    }
+
+    void SetupPopup()
+    {
+        // Hide popup
         settingsPopup.SetActive(false);
 
-        // Load saved volumes
+        // Remove old listeners (important when scene changes)
+        musicSlider.onValueChanged.RemoveAllListeners();
+        sfxSlider.onValueChanged.RemoveAllListeners();
+        musicMuteButton.onClick.RemoveAllListeners();
+        sfxMuteButton.onClick.RemoveAllListeners();
+        closeButtonTop.onClick.RemoveAllListeners();
+        closeButtonBottom.onClick.RemoveAllListeners();
+
+        // Load volumes
         if (AudioManager.Instance != null)
         {
             musicSlider.value = AudioManager.Instance.musicSource.volume;
@@ -64,38 +145,59 @@ public class SettingsManager : MonoBehaviour
         sfxSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
         musicMuteButton.onClick.AddListener(ToggleMusicMute);
         sfxMuteButton.onClick.AddListener(ToggleSFXMute);
+        closeButtonTop.onClick.AddListener(CloseSettings);
+        closeButtonBottom.onClick.AddListener(GoToCharacterSelection);
 
-        closeButtonTop.onClick.AddListener(CloseSettings);           // ← Just closes
-        closeButtonBottom.onClick.AddListener(GoToCharacterSelection); // ← Goes to character selection
-
-        // Update button visuals
+        // Update visuals
         UpdateMusicMuteIcon();
         UpdateSFXMuteIcon();
     }
 
     // ==================== POPUP CONTROL ====================
+
     public void OpenSettings()
     {
-        settingsPopup.SetActive(true);
-        PlayClickSound();
+        if (settingsPopup != null)
+        {
+            settingsPopup.SetActive(true);
+            PlayClickSound();
+        }
+        else
+        {
+            Debug.LogError("❌ SettingsPopup is null! Make sure SettingsPopup prefab is in the Canvas.");
+        }
     }
 
     public void CloseSettings()
     {
-        // Top right X button - just closes popup
-        settingsPopup.SetActive(false);
-        PlayClickSound();
+        if (settingsPopup != null)
+        {
+            settingsPopup.SetActive(false);
+            PlayClickSound();
+        }
+        else
+        {
+            Debug.LogError("❌ settingsPopup is NULL!");
+        }
     }
 
     public void GoToCharacterSelection()
     {
-        // Bottom button - goes to character selection
-        settingsPopup.SetActive(false);
+        if (settingsPopup != null)
+        {
+            settingsPopup.SetActive(false);
+        }
+
         PlayClickSound();
 
         if (SceneLoader.Instance != null)
         {
+            Debug.Log("✅ Loading CharacterSelection scene");
             SceneLoader.Instance.LoadCharacterSelection();
+        }
+        else
+        {
+            Debug.LogError("❌ SceneLoader.Instance is NULL!");
         }
     }
 
@@ -148,17 +250,12 @@ public class SettingsManager : MonoBehaviour
     {
         if (musicMuteIcon == null) return;
 
-        if (musicIsMuted || musicSlider.value == 0f)
-        {
-            musicMuteIcon.color = Color.red; // Temporary
-            // When sprites ready: musicMuteIcon.sprite = musicMutedSprite;
-        }
-        else
-        {
-            musicMuteIcon.color = Color.white; // Temporary
-            // When sprites ready: musicMuteIcon.sprite = musicUnmutedSprite;
-        }
+        bool muted = musicIsMuted || musicSlider.value == 0f;
+
+        musicMuteIcon.sprite = muted ? musicMutedSprite : musicUnmutedSprite;
+        musicMuteIcon.color = Color.white; // keep sprite color normal
     }
+
 
     // ==================== SFX ====================
 
@@ -214,15 +311,12 @@ public class SettingsManager : MonoBehaviour
     {
         if (sfxMuteIcon == null) return;
 
-        if (sfxIsMuted || sfxSlider.value == 0f)
-        {
-            sfxMuteIcon.color = Color.red;
-        }
-        else
-        {
-            sfxMuteIcon.color = Color.white;
-        }
+        bool muted = sfxIsMuted || sfxSlider.value == 0f;
+
+        sfxMuteIcon.sprite = muted ? sfxMutedSprite : sfxUnmutedSprite;
+        sfxMuteIcon.color = Color.white;
     }
+
 
     // ==================== HELPER ====================
 
