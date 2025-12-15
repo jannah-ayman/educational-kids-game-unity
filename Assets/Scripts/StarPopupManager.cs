@@ -146,7 +146,7 @@ public class StarPopupManager : MonoBehaviour
             AudioManager.Instance.PlayWinFanfare();
     }
 
-    void PlayAgain()
+    public void PlayAgain()
     {
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayButtonClick();
@@ -157,7 +157,7 @@ public class StarPopupManager : MonoBehaviour
         SceneLoader.Instance.ReloadCurrentScene();
     }
 
-    void GoToMainMenu()
+    public void GoToMainMenu()
     {
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayButtonClick();

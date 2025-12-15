@@ -222,8 +222,21 @@ public class MathQuizManager : MonoBehaviour
         Debug.Log($"🎉 Quiz completed! Stars earned: {starsEarned}");
     }
 
-    // These methods are called by StarPopupManager buttons
-    // No need to add them here since StarPopup handles restart/menu
+    public void RestartQuiz()
+    {
+        currentQuestionIndex = 0;
+        correctAnswers = 0;
+        StarPopupManager.Instance.PlayAgain();
+        GenerateQuestions();
+        DisplayQuestion();
+        UpdateScoreUI();
+    }
+
+    // Button to go back to main menu
+    public void BackToMenu()
+    {
+        StarPopupManager.Instance.GoToMainMenu();
+    }
 }
 
 // Helper class to store question data

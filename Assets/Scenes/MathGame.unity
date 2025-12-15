@@ -1283,7 +1283,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4848532385839690878, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4848532385839690879, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
       propertyPath: m_Pivot.x
@@ -1376,6 +1376,62 @@ PrefabInstance:
     - target: {fileID: 4848532385947467301, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
       propertyPath: m_fontSizeBase
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4848532386046399292, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4848532386046399292, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4848532386046399292, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1595060147}
+    - target: {fileID: 4848532386046399292, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4848532386046399292, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: BackToMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 4848532386046399292, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MathQuizManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 4848532386046399292, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 4848532386412250255, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4848532386412250255, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4848532386412250255, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1595060147}
+    - target: {fileID: 4848532386412250255, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4848532386412250255, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: RestartQuiz
+      objectReference: {fileID: 0}
+    - target: {fileID: 4848532386412250255, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MathQuizManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 4848532386412250255, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
