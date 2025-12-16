@@ -52,17 +52,6 @@ public class SettingsManager : MonoBehaviour
             SetupPopup();
         }
     }
-
-    //void OnLevelWasLoaded(int level)
-    //{
-    //    // Called when scene changes - find popup again
-    //    FindPopupInScene();
-
-    //    if (settingsPopup != null)
-    //    {
-    //        SetupPopup();
-    //    }
-    //}
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         FindPopupInScene();

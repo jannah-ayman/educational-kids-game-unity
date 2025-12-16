@@ -53,8 +53,8 @@ public class LoginManager : MonoBehaviour
     {
         if (isProcessing) return;
 
-        // Hide confirm password field for login
-        //confirmPasswordInput.gameObject.SetActive(false);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayButtonClick();
 
         string email = emailInput.text.Trim();
         string password = passwordInput.text;
@@ -72,8 +72,8 @@ public class LoginManager : MonoBehaviour
     {
         if (isProcessing) return;
 
-        // Show confirm password field for registration
-        //confirmPasswordInput.gameObject.SetActive(true);
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayButtonClick();
 
         string email = emailInput.text.Trim();
         string password = passwordInput.text;
@@ -87,6 +87,7 @@ public class LoginManager : MonoBehaviour
 
         FirebaseManager.Instance.RegisterUser(email, password, OnRegisterResult);
     }
+
     void OnLoginResult(bool success, string message)
     {
         isProcessing = false;
