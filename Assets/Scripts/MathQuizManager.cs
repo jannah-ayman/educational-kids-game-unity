@@ -8,7 +8,7 @@ public class MathQuizManager : MonoBehaviour
     [Header("UI References")]
     public TMP_Text questionText;
     public Button[] answerButtons; // 4 buttons
-    public TMP_Text scoreText;
+    //public TMP_Text scoreText;
     public TMP_Text questionNumberText;
 
     [Header("Game Settings")]
@@ -25,7 +25,7 @@ public class MathQuizManager : MonoBehaviour
     {
         GenerateQuestions();
         DisplayQuestion();
-        UpdateScoreUI();
+        //UpdateScoreUI();
         characterAnimator = FindObjectOfType<Animator>();
 
         if (characterAnimator == null)
@@ -174,7 +174,7 @@ public class MathQuizManager : MonoBehaviour
                 AudioManager.Instance.PlayWrong();
         }
 
-        UpdateScoreUI();
+        //UpdateScoreUI();
 
         // Move to next question after short delay
         Invoke(nameof(NextQuestion), 0.5f);
@@ -186,10 +186,10 @@ public class MathQuizManager : MonoBehaviour
         DisplayQuestion();
     }
 
-    void UpdateScoreUI()
-    {
-        scoreText.text = $"Score: {correctAnswers}/{totalQuestions}";
-    }
+    //void UpdateScoreUI()
+    //{
+    //    scoreText.text = $"Score: {correctAnswers}/{totalQuestions}";
+    //}
 
     void ShowResults()
     {
@@ -234,7 +234,7 @@ public class MathQuizManager : MonoBehaviour
         StarPopupManager.Instance.PlayAgain();
         GenerateQuestions();
         DisplayQuestion();
-        UpdateScoreUI();
+        //UpdateScoreUI();
     }
 
     // Button to go back to main menu
