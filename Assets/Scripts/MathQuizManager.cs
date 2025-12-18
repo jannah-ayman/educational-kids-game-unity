@@ -227,21 +227,21 @@ public class MathQuizManager : MonoBehaviour
         Debug.Log($"🎉 Quiz completed! Stars earned: {starsEarned}");
     }
 
-    public void RestartQuiz()
-    {
-        currentQuestionIndex = 0;
-        correctAnswers = 0;
-        StarPopupManager.Instance.PlayAgain();
-        GenerateQuestions();
-        DisplayQuestion();
-        //UpdateScoreUI();
-    }
+    //public void RestartQuiz()
+    //{
+    //    currentQuestionIndex = 0;
+    //    correctAnswers = 0;
+    //    StarPopupManager.Instance.PlayAgain();
+    //    GenerateQuestions();
+    //    DisplayQuestion();
+    //    //UpdateScoreUI();
+    //}
 
-    // Button to go back to main menu
-    public void BackToMenu()
-    {
-        StarPopupManager.Instance.GoToMainMenu();
-    }
+    //// Button to go back to main menu
+    //public void BackToMenu()
+    //{
+    //    StarPopupManager.Instance.GoToMainMenu();
+    //}
 }
 
 // Helper class to store question data
