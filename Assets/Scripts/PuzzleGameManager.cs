@@ -369,11 +369,6 @@ public class PuzzleGameManager : MonoBehaviour
         if (referenceImage != null) referenceImage.gameObject.SetActive(false);
         if (timerText != null) timerText.gameObject.SetActive(false);
 
-        // Show title text
-        //if (titleText != null) titleText.gameObject.SetActive(true);
-
-        // Show the level select UI
-        //levelSelectPanel.gameObject.SetActive(true);
         StarPopupManager.Instance.PlayAgain();
         Debug.Log("✓ Game restarted - back to level select");
     }
