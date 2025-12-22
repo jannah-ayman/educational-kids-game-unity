@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -18,7 +19,6 @@ public class LoginManager : MonoBehaviour
     void Start()
     {
         errorText.text = "";
-
         loginButton.onClick.AddListener(OnLoginClicked);
         registerButton.onClick.AddListener(OnRegisterClicked);
 
@@ -26,13 +26,9 @@ public class LoginManager : MonoBehaviour
         errorText.text = "Connecting...";
 
         if (FirebaseManager.Instance.isFirebaseReady)
-        {
             OnFirebaseReady();
-        }
         else
-        {
             FirebaseManager.Instance.OnFirebaseInitialized += OnFirebaseReady;
-        }
     }
 
     void OnDestroy()
@@ -47,12 +43,10 @@ public class LoginManager : MonoBehaviour
         SetButtons(true);
     }
 
+    // --------------------- LOGIN ---------------------
     public void OnLoginClicked()
     {
         if (isProcessing) return;
-
-        if (SettingsManager.Instance != null)
-            SettingsManager.Instance.PlayButtonClick();
 
         string email = emailInput.text.Trim();
         string password = passwordInput.text;
@@ -66,12 +60,35 @@ public class LoginManager : MonoBehaviour
         FirebaseManager.Instance.LoginUser(email, password, OnLoginResult);
     }
 
+    void OnLoginResult(bool success, string message)
+    {
+        isProcessing = false;
+        errorText.text = message;
+        SetButtons(true);
+
+        if (!success) return;
+
+        // ✅ Wait for character data from Firebase before loading MainMenu
+        if (CharacterManager.Instance != null)
+        {
+            errorText.text = "Loading character data...";
+            CharacterManager.Instance.LoadFromFirebase(() =>
+            {
+                // After character data is loaded, go to MainMenu
+                SceneManager.LoadScene("MainMenu");
+            });
+        }
+        else
+        {
+            // Fallback: just load MainMenu
+            SceneManager.LoadScene("MainMenu");
+        }
+    }
+
+    // --------------------- REGISTER ---------------------
     public void OnRegisterClicked()
     {
         if (isProcessing) return;
-
-        if (SettingsManager.Instance != null)
-            SettingsManager.Instance.PlayButtonClick();
 
         string email = emailInput.text.Trim();
         string password = passwordInput.text;
@@ -86,52 +103,29 @@ public class LoginManager : MonoBehaviour
         FirebaseManager.Instance.RegisterUser(email, password, OnRegisterResult);
     }
 
-    void OnLoginResult(bool success, string message)
-    {
-        isProcessing = false;
-
-        if (success)
-        {
-            // Load character data after successful login
-            if (CharacterManager.Instance != null)
-            {
-                Debug.Log("🔄 Loading character data after login...");
-                CharacterManager.Instance.LoadFromFirebase();
-            }
-
-            SceneManager.LoadScene("MainMenu");
-        }
-        else
-        {
-            errorText.text = message;
-            SetButtons(true);
-        }
-    }
-
     void OnRegisterResult(bool success, string message)
     {
         isProcessing = false;
+        errorText.text = message;
+        SetButtons(true);
 
-        if (success)
+        if (!success) return;
+
+        // After registration, load CharacterSelection
+        if (CharacterManager.Instance != null)
         {
-            // Set defaults for new user
-            if (CharacterManager.Instance != null)
+            CharacterManager.Instance.LoadFromFirebase(() =>
             {
-                CharacterManager.Instance.playerName = "Player";
-                CharacterManager.Instance.selectedCharacter = 0;
-                CharacterManager.Instance.SaveToFirebase();
-                Debug.Log("✅ Saved defaults for new user");
-            }
-
-            SceneManager.LoadScene("CharacterSelection");
+                SceneManager.LoadScene("CharacterSelection");
+            });
         }
         else
         {
-            errorText.text = message;
-            SetButtons(true);
+            SceneManager.LoadScene("CharacterSelection");
         }
     }
 
+    // --------------------- VALIDATION ---------------------
     bool ValidateLogin(string email, string password)
     {
         if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))

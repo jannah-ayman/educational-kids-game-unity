@@ -1,16 +1,16 @@
-﻿using UnityEngine;
-using Firebase.Database;
+﻿using Firebase.Database;
+using UnityEngine;
 
 public class CharacterManager : MonoBehaviour
 {
     public static CharacterManager Instance;
 
     [Header("Character Images")]
-    public Sprite[] characterSprites; 
+    public Sprite[] characterSprites;
 
     [Header("Current Selection")]
     public string playerName = "Player";
-    public int selectedCharacter = 0; // 0 or 1 (default is 0)
+    public int selectedCharacter = 0;
 
     [Header("Firebase Settings")]
     public string databaseURL = "https://educational-kids-game-un-4ef4d-default-rtdb.firebaseio.com";
@@ -34,15 +34,33 @@ public class CharacterManager : MonoBehaviour
 
     void Start()
     {
-        databaseRef = FirebaseDatabase.GetInstance(databaseURL).RootReference;
-
-        LoadFromFirebase();
+        // Wait for FirebaseManager to be ready
+        if (FirebaseManager.Instance != null && FirebaseManager.Instance.isFirebaseReady)
+        {
+            InitDatabaseAndLoad();
+        }
+        else
+        {
+            FirebaseManager.Instance.OnFirebaseInitialized += InitDatabaseAndLoad;
+        }
     }
 
+    void InitDatabaseAndLoad()
+    {
+        // Firebase is ready
+        databaseRef = FirebaseDatabase.GetInstance(databaseURL).RootReference;
+        LoadFromFirebase();
+    }
+    void OnEnable()
+    { // Always try to load data when this scene is active
+        if (!IsDataLoaded)
+            LoadFromFirebase();
+    }
     public void LoadFromFirebase()
     {
         IsDataLoaded = false;
 
+        // Check if user is logged in
         if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsUserLoggedIn())
         {
             Debug.Log("⚠️ Not logged in, using defaults");
@@ -57,32 +75,30 @@ public class CharacterManager : MonoBehaviour
             .Child("users").Child(userId)
             .GetValueAsync().ContinueWith(task =>
             {
-                if (task.IsCompleted && !task.IsFaulted && task.Result.Exists)
-                {
-                    var snapshot = task.Result;
-
-                    playerName = snapshot.Child("name").Value?.ToString() ?? "Player";
-
-                    string charStr = snapshot.Child("character").Value?.ToString() ?? "0";
-                    int.TryParse(charStr, out selectedCharacter);
-
-                    if (selectedCharacter < 0 || selectedCharacter >= characterSprites.Length)
-                        selectedCharacter = 0;
-
-                    Debug.Log($"✅ Loaded from DB: {playerName}, Character {selectedCharacter}");
-                }
-                else
-                {
-                    Debug.Log("📝 No saved data, using defaults");
-                }
-
-                IsDataLoaded = true;
-
                 FirebaseManager.RunOnMainThread(() =>
                 {
+                    if (task.IsCompleted && !task.IsFaulted && task.Result.Exists)
+                    {
+                        var snapshot = task.Result;
+
+                        playerName = snapshot.Child("name").Value?.ToString() ?? "Player";
+
+                        string charStr = snapshot.Child("character").Value?.ToString() ?? "0";
+                        int.TryParse(charStr, out selectedCharacter);
+
+                        if (selectedCharacter < 0 || selectedCharacter >= characterSprites.Length)
+                            selectedCharacter = 0;
+
+                        Debug.Log($"✅ Loaded from DB: {playerName}, Character {selectedCharacter}");
+                    }
+                    else
+                    {
+                        Debug.Log("📝 No saved data, using defaults");
+                    }
+
+                    IsDataLoaded = true;
                     OnCharacterDataLoaded?.Invoke();
                 });
-
             });
     }
 
@@ -116,14 +132,25 @@ public class CharacterManager : MonoBehaviour
                 }
             });
     }
+    public void ResetDefaults()
+    {
+        playerName = "Player";
+        selectedCharacter = 0;
+        IsDataLoaded = false;
+        OnCharacterDataLoaded = null; // <--- clear previous subscribers
+    }
+
+    public void LoadFromFirebase(System.Action onLoaded)
+    {
+        OnCharacterDataLoaded += onLoaded;
+        LoadFromFirebase();
+    }
 
     public Sprite GetCurrentCharacterSprite()
     {
         if (selectedCharacter >= 0 && selectedCharacter < characterSprites.Length)
             return characterSprites[selectedCharacter];
 
-        Debug.LogWarning("⚠️ Invalid character index, returning first sprite");
         return characterSprites.Length > 0 ? characterSprites[0] : null;
     }
-
 }

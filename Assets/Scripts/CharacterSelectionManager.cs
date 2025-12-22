@@ -16,78 +16,68 @@ public class CharacterSelectionManager : MonoBehaviour
 
     void Start()
     {
+        errorText.text = "";
+
+        // Hook up buttons
         character1Button.onClick.AddListener(() => SelectCharacter(0));
         character2Button.onClick.AddListener(() => SelectCharacter(1));
         confirmButton.onClick.AddListener(Confirm);
 
-        errorText.text = "";
-
+        // Load data from Firebase first
         if (CharacterManager.Instance != null)
         {
-            if (CharacterManager.Instance.IsDataLoaded)
+            // Subscribe to be notified when data is loaded
+            CharacterManager.Instance.OnCharacterDataLoaded += ApplyLoadedData;
+
+            // If not loaded yet, fetch it
+            if (!CharacterManager.Instance.IsDataLoaded)
             {
-                ApplyLoadedData();
+                nameInput.text = "Loading..."; // temporary placeholder
+                CharacterManager.Instance.LoadFromFirebase();
             }
             else
             {
-                CharacterManager.Instance.OnCharacterDataLoaded += ApplyLoadedData;
+                // Already loaded? Apply immediately
+                ApplyLoadedData();
             }
-        }
-    }
-
-    void ApplyLoadedData()
-    {
-        if (CharacterManager.Instance == null) return;
-
-        nameInput.text = CharacterManager.Instance.playerName;
-
-        selectedChar = CharacterManager.Instance.selectedCharacter;
-        SelectCharacter(selectedChar);
-
-        Debug.Log($"🟢 UI updated: {nameInput.text}, Character {selectedChar}");
-
-        CharacterManager.Instance.OnCharacterDataLoaded -= ApplyLoadedData;
-    }
-
-
-    void LoadCurrentCharacter()
-    {
-        if (CharacterManager.Instance != null)
-        {
-            nameInput.text = CharacterManager.Instance.playerName;
-
-            selectedChar = CharacterManager.Instance.selectedCharacter;
-            SelectCharacter(selectedChar);
         }
         else
         {
             // Fallback defaults
             nameInput.text = "Player";
-            SelectCharacter(0);
+            selectedChar = 0;
+            UpdateButtonColors();
         }
+    }
+
+    // Apply Firebase-loaded data to UI
+    void ApplyLoadedData()
+    {
+        if (CharacterManager.Instance == null) return;
+
+        nameInput.text = CharacterManager.Instance.playerName;
+        selectedChar = CharacterManager.Instance.selectedCharacter;
+        UpdateButtonColors();
+
+        Debug.Log($"🟢 UI updated from Firebase: {nameInput.text}, Character {selectedChar}");
+
+        // Unsubscribe so it only runs once
+        CharacterManager.Instance.OnCharacterDataLoaded -= ApplyLoadedData;
     }
 
     void SelectCharacter(int index)
     {
-        if (CharacterManager.Instance == null) return;
-        if (index < 0 || index >= CharacterManager.Instance.characterSprites.Length)
-            index = 0;
-
         selectedChar = index;
+        UpdateButtonColors();
 
-        ResetButtonColors();
-
-        Button selectedButton = index == 0 ? character1Button : character2Button;
-        selectedButton.GetComponent<Image>().color = Color.yellow;
-
-        if (SettingsManager.Instance != null)
-            SettingsManager.Instance.PlayButtonClick();
+        // Optional: play click sound
+        SettingsManager.Instance?.PlayButtonClick();
     }
 
-    void ResetButtonColors()
+    void UpdateButtonColors()
     {
-        character1Button.GetComponent<Image>().color = Color.white;
-        character2Button.GetComponent<Image>().color = Color.white;
+        if (character1Button != null) character1Button.GetComponent<Image>().color = (selectedChar == 0) ? Color.yellow : Color.white;
+        if (character2Button != null) character2Button.GetComponent<Image>().color = (selectedChar == 1) ? Color.yellow : Color.white;
     }
 
     void Confirm()
@@ -100,12 +90,15 @@ public class CharacterSelectionManager : MonoBehaviour
             return;
         }
 
-        // Save to CharacterManager
-        CharacterManager.Instance.playerName = name;
-        CharacterManager.Instance.selectedCharacter = selectedChar;
-        CharacterManager.Instance.SaveToFirebase();
-        
-        SettingsManager.Instance.PlayButtonClick();
+        if (CharacterManager.Instance != null)
+        {
+            // Save selection to Firebase
+            CharacterManager.Instance.playerName = name;
+            CharacterManager.Instance.selectedCharacter = selectedChar;
+            CharacterManager.Instance.SaveToFirebase();
+        }
+
+        SettingsManager.Instance?.PlayButtonClick();
 
         // Go to main menu
         SceneManager.LoadScene("MainMenu");

@@ -16,6 +16,7 @@ public class CardsController : MonoBehaviour
 
     private int matchCounts;
     private int wrongFlips;
+    private bool canSelect = false;
 
     private Animator characterAnimator;
 
@@ -67,17 +68,44 @@ public class CardsController : MonoBehaviour
         {
             Card card = Instantiate(cardPrefab, gridTransform);
             card.SetIconSprite(spritePairs[i]);
+
+            // Show face-up instantly
+            card.iconImage.sprite = spritePairs[i];
+            card.isSelected = true;
+
             card.controller = this;
         }
+
+        StartCoroutine(PreviewCards());
+    }
+
+    IEnumerator PreviewCards()
+    {
+        canSelect = false;
+
+        yield return new WaitForSeconds(0.4f);
+
+        // Flip all cards back down
+        foreach (Transform child in gridTransform)
+        {
+            Card card = child.GetComponent<Card>();
+            if (card != null)
+                card.Hide();
+        }
+
+        // Small delay to finish flip animations
+        yield return new WaitForSeconds(0.4f);
+
+        canSelect = true;
     }
 
     public void SetSelected(Card card)
     {
+        if (!canSelect) return;
         if (card.isSelected) return;
 
         card.Show();
 
-        // 🔊 Flip sound
         if (SettingsManager.Instance != null)
             SettingsManager.Instance.PlayCardFlip();
 
@@ -93,6 +121,7 @@ public class CardsController : MonoBehaviour
         firstSelected = null;
         secondSelected = null;
     }
+
 
     IEnumerator CheckMatching(Card a, Card b)
     {

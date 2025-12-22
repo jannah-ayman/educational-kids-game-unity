@@ -14,12 +14,10 @@ public class FirebaseManager : MonoBehaviour
     private FirebaseAuth auth;
     private FirebaseUser currentUser;
 
-    // Events
     public event Action OnFirebaseInitialized;
     public event Action<FirebaseUser> OnUserLoggedIn;
     public event Action OnUserLoggedOut;
 
-    // Main-thread action queue
     private static readonly Queue<Action> mainThreadActions = new Queue<Action>();
 
     void Awake()
@@ -30,10 +28,7 @@ public class FirebaseManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
             InitializeFirebase();
         }
-        else
-        {
-            Destroy(gameObject);
-        }
+        else Destroy(gameObject);
     }
 
     void Update()
@@ -41,9 +36,7 @@ public class FirebaseManager : MonoBehaviour
         lock (mainThreadActions)
         {
             while (mainThreadActions.Count > 0)
-            {
                 mainThreadActions.Dequeue()?.Invoke();
-            }
         }
     }
 
@@ -57,8 +50,6 @@ public class FirebaseManager : MonoBehaviour
 
     void InitializeFirebase()
     {
-        Debug.Log("🔥 Initializing Firebase...");
-
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
         {
             RunOnMainThread(() =>
@@ -68,12 +59,9 @@ public class FirebaseManager : MonoBehaviour
                     auth = FirebaseAuth.DefaultInstance;
                     isFirebaseReady = true;
 
-                    Debug.Log("✅ Firebase initialized successfully!");
-
                     if (auth.CurrentUser != null)
                     {
                         currentUser = auth.CurrentUser;
-                        Debug.Log($"👤 User already logged in: {currentUser.Email}");
                         OnUserLoggedIn?.Invoke(currentUser);
                     }
 
@@ -81,7 +69,6 @@ public class FirebaseManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError($"❌ Firebase init failed: {task.Result}");
                     isFirebaseReady = false;
                 }
             });
@@ -96,26 +83,18 @@ public class FirebaseManager : MonoBehaviour
             return;
         }
 
-        Debug.Log($"🔐 Logging in user: {email}");
-
         auth.SignInWithEmailAndPasswordAsync(email, password).ContinueWith(task =>
         {
             RunOnMainThread(() =>
             {
-                if (task.IsCanceled)
+                if (task.IsCanceled || task.IsFaulted)
                 {
-                    callback(false, "Login canceled");
-                    return;
-                }
-
-                if (task.IsFaulted)
-                {
-                    callback(false, "Invalid email or password.");
+                    // Friendly error instead of raw message
+                    callback(false, "Wrong email or password.");
                     return;
                 }
 
                 currentUser = task.Result.User;
-                Debug.Log($"✅ Logged in: {currentUser.Email}");
                 OnUserLoggedIn?.Invoke(currentUser);
                 callback(true, "Login successful!");
             });
@@ -130,26 +109,17 @@ public class FirebaseManager : MonoBehaviour
             return;
         }
 
-        Debug.Log($"📝 Registering user: {email}");
-
         auth.CreateUserWithEmailAndPasswordAsync(email, password).ContinueWith(task =>
         {
             RunOnMainThread(() =>
             {
-                if (task.IsCanceled)
+                if (task.IsCanceled || task.IsFaulted)
                 {
-                    callback(false, "Registration canceled");
-                    return;
-                }
-
-                if (task.IsFaulted)
-                {
-                    callback(false, "Invalid email or password.");
+                    callback(false, "Failed to register. Check your email or password.");
                     return;
                 }
 
                 currentUser = task.Result.User;
-                Debug.Log($"✅ Registered: {currentUser.Email}");
                 OnUserLoggedIn?.Invoke(currentUser);
                 callback(true, "Registration successful!");
             });
@@ -164,60 +134,10 @@ public class FirebaseManager : MonoBehaviour
             currentUser = null;
             OnUserLoggedOut?.Invoke();
         }
+        CharacterManager.Instance?.ResetDefaults();
     }
 
-    public bool IsUserLoggedIn()
-    {
-        return auth != null && auth.CurrentUser != null;
-    }
+    public bool IsUserLoggedIn() => auth != null && auth.CurrentUser != null;
 
-    public FirebaseUser GetCurrentUser()
-    {
-        return currentUser;
-    }
-
-    string GetFirebaseErrorMessage(AggregateException exception)
-    {
-        if (exception == null) return "Unknown error";
-
-        foreach (var e in exception.Flatten().InnerExceptions)
-        {
-            if (e is FirebaseException firebaseEx)
-            {
-                AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
-
-                switch (errorCode)
-                {
-                    case AuthError.InvalidEmail:
-                        return "Invalid email address!";
-
-                    case AuthError.Failure:
-                        // wrong password, user not found
-                        return "Invalid email or password.";
-
-                    case AuthError.EmailAlreadyInUse:
-                        return "Email already registered!";
-
-                    case AuthError.WeakPassword:
-                        return "Password too weak (min 6 chars)";
-
-                    case AuthError.NetworkRequestFailed:
-                        return "Network error! Check your connection.";
-
-                    case AuthError.TooManyRequests:
-                        return "Too many attempts. Try again later.";
-
-                    case AuthError.UserDisabled:
-                        return "This account has been disabled.";
-
-                    default:
-                        Debug.LogError($"Firebase Auth Error Code: {errorCode}");
-                        return "Authentication failed!";
-                }
-            }
-        }
-
-        return "Authentication failed!";
-    }
-
+    public FirebaseUser GetCurrentUser() => currentUser;
 }
