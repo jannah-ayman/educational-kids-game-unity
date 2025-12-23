@@ -19,6 +19,7 @@
 Thumbs.db
 
 # Firebase / External Dependency Manager
+# Firebase / External Dependency Manager
 Assets/Firebase/
 Assets/Firebase.meta
 Assets/ExternalDependencyManager/
@@ -26,5 +27,7 @@ Assets/ExternalDependencyManager.meta
 Assets/Editor Default Resources/
 Assets/google-services.json
 Assets/google-services.json.meta
+Assets/Plugins/Android/FirebaseApp.androidlib/res/values/google-services.xml
+Assets/Plugins/Android/FirebaseApp.androidlib/res/values/google-services.xml.meta
 Assets/StreamingAssets/google-services-desktop.json
 Assets/StreamingAssets/google-services-desktop.json.meta
