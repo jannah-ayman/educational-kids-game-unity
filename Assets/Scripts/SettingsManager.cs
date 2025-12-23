@@ -69,13 +69,9 @@ public class SettingsManager : MonoBehaviour
         musicSource.volume = PlayerPrefs.GetFloat("MusicVolume", 1f);
         sfxSource.volume = PlayerPrefs.GetFloat("SFXVolume", 1f);
 
-        // Play music
-        if (backgroundMusic != null)
-        {
-            musicSource.clip = backgroundMusic;
-            musicSource.loop = true;
-            musicSource.Play();
-        }
+        musicSource.clip = backgroundMusic;
+        musicSource.loop = true;
+        musicSource.Play();
     }
 
     public void PlayButtonClick() => sfxSource.PlayOneShot(buttonClick);

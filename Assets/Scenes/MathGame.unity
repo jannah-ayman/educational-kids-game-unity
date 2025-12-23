@@ -1327,7 +1327,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4848532386046399292, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4848532386046399292, guid: 788dd5b6cd3a10d4293f0b31e3eeb1c2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -2229,6 +2229,26 @@ PrefabInstance:
     - target: {fileID: 4376748907796960340, guid: 05523d45649e3ba429f93ab68be69118, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -71.90001
+      objectReference: {fileID: 0}
+    - target: {fileID: 4376748907796960343, guid: 05523d45649e3ba429f93ab68be69118, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4376748907796960343, guid: 05523d45649e3ba429f93ab68be69118, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4376748907796960343, guid: 05523d45649e3ba429f93ab68be69118, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4376748907796960343, guid: 05523d45649e3ba429f93ab68be69118, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4376748907796960343, guid: 05523d45649e3ba429f93ab68be69118, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: ReturnToMenuButton, Assembly-CSharp
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

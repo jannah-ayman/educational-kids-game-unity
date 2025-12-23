@@ -1,6 +1,6 @@
 ﻿using Firebase.Database;
 using UnityEngine;
-
+using System.Collections.Generic;
 public class CharacterManager : MonoBehaviour
 {
     public static CharacterManager Instance;
@@ -31,28 +31,22 @@ public class CharacterManager : MonoBehaviour
     {
         if (FirebaseManager.Instance != null && FirebaseManager.Instance.isFirebaseReady)
         {
-            InitDatabaseAndLoad();
+            LoadFromFirebase();
         }
         else
         {
-            FirebaseManager.Instance.OnFirebaseInitialized += InitDatabaseAndLoad;
+            FirebaseManager.Instance.OnFirebaseInitialized += LoadFromFirebase;
         }
-    }
-
-    void InitDatabaseAndLoad()
-    {
-        databaseRef = FirebaseDatabase.GetInstance(databaseURL).RootReference;
-        LoadFromFirebase();
     }
 
     public void LoadFromFirebase()
     {
+        databaseRef = FirebaseDatabase.GetInstance(databaseURL).RootReference;
+
         IsDataLoaded = false;
 
-        // Check if user is logged in
-        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsUserLoggedIn())
+        if (!FirebaseManager.Instance.IsUserLoggedIn())
         {
-            Debug.Log("⚠️ Not logged in, using defaults");
             IsDataLoaded = true;
             OnCharacterDataLoaded?.Invoke();
             return;
@@ -78,11 +72,11 @@ public class CharacterManager : MonoBehaviour
                         if (selectedCharacter < 0 || selectedCharacter >= 2)
                             selectedCharacter = 0;
 
-                        Debug.Log($"✅ Loaded from DB: {playerName}, Character {selectedCharacter}");
+                        Debug.Log($"Loaded from DB: {playerName}, Character {selectedCharacter}");
                     }
                     else
                     {
-                        Debug.Log("📝 No saved data, using defaults");
+                        Debug.Log("No saved data, using defaults");
                     }
 
                     IsDataLoaded = true;
@@ -90,22 +84,17 @@ public class CharacterManager : MonoBehaviour
                 });
             });
     }
-    //public void LoadFromFirebase(System.Action onLoaded)
-    //{
-    //    OnCharacterDataLoaded += onLoaded;
-    //    LoadFromFirebase();
-    //}
     public void SaveToFirebase()
     {
-        if (FirebaseManager.Instance == null || !FirebaseManager.Instance.IsUserLoggedIn())
+        if (!FirebaseManager.Instance.IsUserLoggedIn())
         {
-            Debug.LogWarning("⚠️ Can't save - not logged in");
+            Debug.LogWarning("Can't save - not logged in");
             return;
         }
 
         string userId = FirebaseManager.Instance.GetCurrentUser().UserId;
 
-        var data = new System.Collections.Generic.Dictionary<string, object>
+        var data = new Dictionary<string, object>
         {
             { "name", playerName },
             { "character", selectedCharacter }
@@ -113,17 +102,7 @@ public class CharacterManager : MonoBehaviour
 
         databaseRef
             .Child("users").Child(userId)
-            .SetValueAsync(data).ContinueWith(task =>
-            {
-                if (task.IsCompleted && !task.IsFaulted)
-                {
-                    Debug.Log($"✅ Saved: {playerName}, Character {selectedCharacter}");
-                }
-                else
-                {
-                    Debug.LogError("❌ Save failed!");
-                }
-            });
+            .SetValueAsync(data);
     }
     public void ResetDefaults()
     {
@@ -132,6 +111,4 @@ public class CharacterManager : MonoBehaviour
         IsDataLoaded = false;
         OnCharacterDataLoaded = null; 
     }
-
-    
 }
