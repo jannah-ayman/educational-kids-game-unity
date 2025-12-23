@@ -1,99 +1,62 @@
-# 🎮 Educational Kids Game
+# EduFun Adventure 🎮✨
 
-## 📝 Project Description
-
-An interactive educational game designed specifically for children, featuring multiple mini-games that help develop various cognitive skills through fun and engaging activities. The game provides a safe, colorful, and motivating environment where children can learn while playing.
+Welcome to **EduFun Adventure**, a fun and educational mini-game collection! Enjoy solving math problems, matching memory cards, and completing jigsaw puzzles—all while interacting with your adorable characters. 🐾  
 
 ---
 
-## ✨ Key Features
+## Download 📥
 
-### 🔐 User Management
-- **Email Registration**: Simple and secure registration system
-- **Persistent Login**: Automatic account saving via **Firebase Authentication**
-- **Cloud Storage**: User data stored securely in Firebase Realtime Database
-- **User Profile**: Each child has their own personalized profile
-
-
-### 👾 Character System
-- **Avatar Selection**: Multiple character options for children to choose from
-- **Name Customization**: Players can name their character
-- **Persistent Character**: Selected avatar is saved and appears throughout all game scenes
-- **Motivational Companion**: The character stays on screen, reacting and encouraging the player during gameplay
-
-### 🎮 Game Modes
-
-#### 1. **Puzzle Game** 🧩
-- Multiple picture options to choose from
-- Drag-and-drop piece arrangement with Timed Challenges
-- Complete the full image to win
-
-#### 2. **Memory Match** 🃏
-- Classic card-flipping memory game
-- Find matching pairs of cards
-- Develops memory and concentration skills
-
-#### 3. **Math Fun** ➕➖✖️
-- Interactive math challenges
-- Addition & Subtraction: Basic arithmetic operations
-- Multiplication & Division: For advanced learners
-- Visual Representations: Numbers shown with colorful graphics
-- Instant Feedback: Correct/incorrect animations
-- Helps develop:Mental arithmetic skills ,Quick thinking
-
-
-### 🏆 Rewards & Motivation System
-- **Star Ratings**: Earn stars for completing tasks
-
-### 🔊 Audio Experience
-- **Background Music**: Age-appropriate music for each game
-- **Sound Effects**: Fun sounds for various actions:
-  - Clicking/tapping
-  - Winning/losing
-  - Drawing/dragging
-  - Card flipping
-  - Puzzle piece placement
-- **Volume Control**: Easy audio management in settings
-
-### ⚙️ Settings Menu
-- Volume on/off toggle
-- Music control
-- Sound effects control
-- User-friendly interface for children
-
-### 📱 Mobile Support
-- Built specifically for Android devices
-- **Touch-Friendly**: All interactions designed for touchscreens
+**Windows (EXE):** [Download Here](https://github.com/jannah-ayman/educational-kids-game-unity/releases/download/v1.0.0/Windows.zip)  
+**Android (APK):** [Download Here](https://github.com/jannah-ayman/educational-kids-game-unity/releases/download/v1.0.0/Educational.Kids.Game.apk)  
 
 ---
 
-## 📖 How to Play
+## Features 🌟
 
-1. **Registration**: Enter your email to create an account
-2. **Character Selection**: Choose your favorite character (**Bubu** or **Dudu**) and give it a name
-3. **Game Selection**: Pick from three exciting games
-4. **Play & Learn**: Complete challenges
+- **Mini-Games**
+  - **Math Quiz:** Answer addition, subtraction, and multiplication questions while your character reacts to your answers. 🧮  
+  - **Memory Match:** Flip cards to find pairs and test your memory skills. 🃏  
+  - **Puzzle Game:** Drag and drop puzzle pieces to complete fun jigsaws. 🧩  
 
----
-## 📸 Screenshots 
+- **Firebase Integration ☁️**
+  - Sign up and log in securely.  
+  - Your character and name are saved in the cloud.  
 
-**Loading**
+- **Interactive Characters 🐻🐻‍❄️**
+  - Characters animate and react when you answer correctly or make a mistake.  
+  - Expressive animations make learning more fun.  
 
-![screen](image/screen.jpg)
-
----
-## Try it now and have fun learning! 🎮✨
-
-**Download the Game** [Download APK](https://drive.google.com/file/d/1ShN5xV-H5YmB8hv0qvVGTfiku_Ena5EW/view?usp=sharing)
-
----
-
-## 👥 Authors & Contributors
-
-- [Jannah Ayman](https://github.com/jannah-ayman)
-- [Rawan Sotohy](https://github.com/Rawan-Sotohy)
-- [Nancy Saad](https://github.com/nancyabdelbaryy)
+- **Rewards 🏆**
+  - Earn up to 5 stars based on your performance.  
 
 ---
 
-**Made with ❤️ for children's education and entertainment**
+## Controls 🎮
+
+**Windows (EXE)**
+- Click to select answers and flip cards.  
+- Click and drag puzzle pieces.  
+
+**Android (APK)**
+- Tap to interact with menus, answer questions, and flip cards.  
+- Drag puzzle pieces with touch.  
+
+---
+
+## How to Play 🚀
+
+1. **Login or Register** using your email.  
+2. **Select a character** and give it a name.  
+3. **Choose a mini-game** from the main menu.  
+4. **Play, earn stars, and have fun!** 🌈  
+
+---
+
+## Notes ⚠️
+
+- Make sure your device has internet access for Firebase sync.
+- Settings are available in all scenes for sound adjustments.  
+
+---
+
+Have fun learning and playing with **EduFun Adventure**! 🎉🐾
